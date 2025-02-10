@@ -52,7 +52,8 @@ const TripError = error{ Unreachable, EatenByAGrue };
 // loop!
 const Place = struct {
     name: []const u8,
-    paths: []const Path = undefined,
+    paths: []const Path = undefined, // why can this be const?
+    // is it because it will be assigned, but only once?
 };
 
 var a = Place{ .name = "Archer's Point" };
@@ -192,8 +193,8 @@ const TripItem = union(enum) {
             // Oops! The hermit forgot how to capture the union values
             // in a switch statement. Please capture each value as
             // 'p' so the print statements work!
-            .place => print("{s}", .{p.name}),
-            .path => print("--{}->", .{p.dist}),
+            .place => |p| print("{s}", .{p.name}),
+            .path => |p| print("--{}->", .{p.dist}),
         }
     }
 };
@@ -255,7 +256,7 @@ const HermitsNotebook = struct {
             // dereference and optional value "unwrapping" look
             // together. Remember that you return the address with the
             // "&" operator.
-            if (place == entry.*.?.place) return entry;
+            if (place == entry.*.?.place) return &entry.*.?;
             // Try to make your answer this long:__________;
         }
         return null;
@@ -309,7 +310,7 @@ const HermitsNotebook = struct {
     //
     // Looks like the hermit forgot something in the return value of
     // this function. What could that be?
-    fn getTripTo(self: *HermitsNotebook, trip: []?TripItem, dest: *Place) void {
+    fn getTripTo(self: *HermitsNotebook, trip: []?TripItem, dest: *Place) !void {
         // We start at the destination entry.
         const destination_entry = self.getEntry(dest);
 
