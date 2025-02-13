@@ -2,15 +2,15 @@
 // We've absorbed a lot of information about the variations of types
 // we can use in Zig. Roughly, in order we have:
 //
-//                          u8  single item
-//                         *u8  single-item pointer
+//                          u8  single int
+//                         *u8  pointer to single int
 //                        []u8  slice (size known at runtime)
 //                       [5]u8  array of 5 u8s
-//                       [*]u8  many-item pointer (zero or more)
-//                 enum {a, b}  set of unique values a and b
-//                error {e, f}  set of unique error values e and f
+//                       [*]u8  many-item pointer
+//                 enum {a, b}  set of unique values
+//                error {e, f}  set of unique error values
 //      struct {y: u8, z: i32}  group of values y and z
-// union(enum) {a: u8, b: i32}  single value either u8 or i32
+// union(enum) {a: u8, b: i32}  single value of a or b
 //
 // Values of any of the above types can be assigned as "var" or "const"
 // to allow or disallow changes (mutability) via the assigned name:
@@ -192,8 +192,8 @@ const TripItem = union(enum) {
             // Oops! The hermit forgot how to capture the union values
             // in a switch statement. Please capture each value as
             // 'p' so the print statements work!
-            .place => print("{s}", .{p.name}),
-            .path => print("--{}->", .{p.dist}),
+            .place => |p| print("{s}", .{p.name}),
+            .path => |p| print("--{}->", .{p.dist}),
         }
     }
 };
@@ -255,7 +255,7 @@ const HermitsNotebook = struct {
             // dereference and optional value "unwrapping" look
             // together. Remember that you return the address with the
             // "&" operator.
-            if (place == entry.*.?.place) return entry;
+            if (place == entry.*.?.place) return &entry.*.?;
             // Try to make your answer this long:__________;
         }
         return null;
@@ -309,7 +309,7 @@ const HermitsNotebook = struct {
     //
     // Looks like the hermit forgot something in the return value of
     // this function. What could that be?
-    fn getTripTo(self: *HermitsNotebook, trip: []?TripItem, dest: *Place) void {
+    fn getTripTo(self: *HermitsNotebook, trip: []?TripItem, dest: *Place) !void {
         // We start at the destination entry.
         const destination_entry = self.getEntry(dest);
 
