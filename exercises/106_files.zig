@@ -49,17 +49,44 @@ pub fn main() !void {
 
     // we try to open the file `zigling.txt`,
     // and propagate any error up
-    const file: std.fs.File = try output_dir.createFile("zigling.txt", .{});
+    const create_flags = std.fs.File.CreateFlags{
+        .read = true,
+        // .truncate = false,
+    };
+    const created_file: std.fs.File = try output_dir.createFile("zigling.txt", create_flags);
+
     // it is a good habit to close a file after you are done with it
     // so that other programs can read it and prevent data corruption
     // but here we are not yet done writing to the file
     // if only there were a keyword in Zig that
     // allowed you to "defer" code execution to the end of the scope...
-    defer file.close();
 
     // you are not allowed to move these two lines above the file closing line!
-    const byte_written = try file.write("It's zigling time!");
+    const end_pos = try created_file.getEndPos();
+    created_file.seekTo(end_pos) catch {};
+    const byte_written = try created_file.write("It's zigling time!");
     std.debug.print("Successfully wrote {d} bytes.\n", .{byte_written});
+    created_file.close();
+
+    // const open_flags = std.fs.File.OpenFlags{
+    //     .mode = std.fs.File.OpenMode.read_write,
+    // };
+    // const file: std.fs.File = try output_dir.openFile("zigling.txt", open_flags);
+    // defer file.close();
+    //
+    // const end_pos2 = try file.getEndPos();
+    // file.seekTo(end_pos2) catch {};
+    // _ = try file.write("Hello Tim2!\n");
+    //
+    // file.seekTo(0) catch {};
+    // var buffer: [5]u8 = undefined;
+    // while (true) {
+    //     const bytes_read = try file.reader().read(buffer[0..]);
+    //     std.debug.print("{s}", .{buffer[0..bytes_read]});
+    //     if (bytes_read == 0) {
+    //         break;
+    //     }
+    // }
 }
 // to check if you actually write to the file, you can either,
 // 1. open the file in your text editor, or

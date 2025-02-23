@@ -90,6 +90,7 @@ const v7 = @abs(v6); // { 2.0,  11.0,  175.0}
 const v8: @Vector(4, u8) = @splat(2); // { 2, 2, 2, 2}
 const v8_sum = @reduce(.Add, v8); // 8
 const v8_min = @reduce(.Min, v8); // 2
+const v8_mul = @reduce(.Mul, v8);
 
 // Fixed-length arrays can be automatically assigned to vectors (and vice-versa).
 const single_digit_primes = [4]i8{ 2, 3, 5, 7 };
@@ -121,8 +122,8 @@ fn calcMaxPairwiseDiffOld(list1: [4]f32, list2: [4]f32) f32 {
 
 const Vec4 = @Vector(4, f32);
 fn calcMaxPairwiseDiffNew(a: Vec4, b: Vec4) f32 {
-    const abs_diff_vec = ???;
-    const max_diff = @reduce(???, abs_diff_vec);
+    const abs_diff_vec = @abs(a - b);
+    const max_diff = @reduce(.Max, abs_diff_vec);
     return max_diff;
 }
 
